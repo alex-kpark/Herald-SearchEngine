@@ -30,7 +30,7 @@ def assort_only_article(whole_news):
 
 if __name__ == '__main__':
 
-    path = "./Data2/newsCrawl_s.json"
+    path = "./data/newsCrawl_100mb.json"
     whole_news = read_news(path)
     only_article = assort_only_article(whole_news)
 

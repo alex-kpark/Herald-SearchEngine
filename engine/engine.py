@@ -129,7 +129,7 @@ def score(tfidf,word_dictionary,doc_dictionary,matched_document,query):
 
 def search_engine(query):
 
-    path = "./Data2/newsCrawl_s.json"
+    path = "./data/newsCrawl_100mb.json"
     whole_news = jp.read_news(path)
 
     doc_names, docs = read_docs(whole_news)
