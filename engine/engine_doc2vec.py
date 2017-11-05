@@ -34,8 +34,8 @@ def search(input_query):
     end2=time.clock()
     print("Load Doc2Vec Model Time: %s"%(end2-end1))
     
+    #입력된쿼리로 가장유사도높은 문서 검색하기
     infer_vector = model.infer_vector(input_query)
-
     docsim2 = model.docvecs.most_similar([infer_vector], topn = 10)
     
     end3=time.clock()
