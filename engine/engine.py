@@ -48,29 +48,37 @@ def search(input_query):
     #Series
     #key: url / value: title, article
     whole_news = pd.read_json(content.decode('utf-8'), typ='series', orient='records')
-    original_data = pd.Series((re.sub('[!"#%\'()*+,-./:;<=>?@\[\]\\xa0$^_`{|}~1234567890’”“′‘\\\]',' ', news['title']+" "+news['article']) for news in whole_news)
+    original_data = pd.Series((re.sub('[!"#%\'()*+,-./:;<=>?@\[\]\\xa0$^_`{|}~1234567890’”“′‘\\\]',' ', news['title'].lower()+" "+news['article'].lower()) for news in whole_news)
                                 , index = [news['url'] for news in whole_news])
+    #print(original_data)
     end3=time.clock()
     print("Read news(JSON) & Pandas Series Time: %s"%(end3-end2))
 
     #Lower & Tokenizing
-    processed_data = original_data.apply(lambda x: str(x).lower())
-    processed_data = processed_data.apply(lambda x: word_tokenize(x))
+    #processed_data = original_data.apply(lambda x: str(x).lower())
+    processed_data = original_data.apply(lambda x: word_tokenize(x))
     dictionary = corpora.Dictionary(processed_data.values)
     end4=time.clock()
     print("Lower & Tokenizing & Dictionary Time: %s"%(end4-end3))
     print(dictionary)
-    corpus = [dictionary.doc2bow(doc) for doc in processed_data.values]
 
+
+    lsi = gensim.models.LsiModel(tweets,
+                             num_topics=100,
+                             power_iters=10,
+                             id2word=dictionary)
+
+    #
+    corpus = [dictionary.doc2bow(doc) for doc in processed_data.values]
     tfidf = models.TfidfModel(corpus)
     corpus_tfidf = tfidf[corpus]
 
-    #vec_bow = dictionary.doc2bow(input_query)
-    #vec_tfidf = tfidf[vec_bow]
+    vec_bow = dictionary.doc2bow(input_query)
+    vec_tfidf = tfidf[vec_bow]
 
     #print(vec_bow)
-    #print(tfidf[vec_bow])
-    #print(dictionary.items())
+    print(tfidf[vec_bow])
+    print(dictionary.items())
 
 if __name__ == "__main__":
     input_query = get_argument()
