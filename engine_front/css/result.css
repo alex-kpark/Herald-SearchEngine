@@ -1,0 +1,36 @@
+.query_result{
+    margin-top: 70px;
+    text-align: center;
+}
+
+.query_noti{
+    margin-top: 20px;
+}
+
+.query_search_container{
+    margin-top: 10px;
+}
+
+.result_container{
+    padding-top: 30px;
+}
+
+.result_list{
+
+    width: 200px;
+}
+
+.result_container{
+    align-content: center;
+}
+
+.result_list_container{
+
+    border: 1px solid grey;;
+    margin: 10px;    
+    width: 400px;
+}
+
+.result_contents_info{
+    justify-content: flex;
+}
