@@ -1,0 +1,12 @@
+newsCrawler는 두가지 크롤러로 구성되어 있습니다. 
+1) urlSpider - article이 있는 url을 가져옵니다. 
+2) newsSpider - url에 들어가서 title, date, article을 가져옵니다.
+
+<사용방법> 
+1. urlSpider파일에서 카테고리 url을 선택 -> 카테고리에 따른 범위 선택
+2. pipelines 파일 JsonPipeline에서 self.file = open("newsUrlCrawl.json", 'wb')을 주석 해지
+3. scrapy crawl urlSpider 실행 ->newsUrlCrawl.json 파일이 생성됨
+4. pipelines 파일 JsonPipeline에서 self.file = open("newsCrawl.json", 'wb')을 주석 해지
+   2번에서 주석해지했던("newsUrlCrawl.json", 'wb')는 주석처리
+5. scrapy crawl newsSpider 실행 ->newsCral.json 파일이 생성됨
+(6. 카테고리 변경할 때마다 주석해지시켜주어야 함.)
