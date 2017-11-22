@@ -15,24 +15,32 @@ import re
 from stop_words import get_stop_words
 from nltk.stem.porter import PorterStemmer
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+import time
 
 def make_model(sentences):
     whole_news = pd.read_json(content, typ='series', orient='records')
 
     docs = []
+    start = time.clock()
     for news in whole_news:
         id = news['url']
-        value = re.sub('[!"#%\'()*+,-./:;<=>?@\[\]\\xa0$^_`{|}~’”“′‘\\\]',' ', news['title'].lower()+" "+news['article'].lower())
+        value = re.sub('[!"#%\'()*+,./:;<=>?@\[\]\\xa0$^_`{|}~’”“′‘\\\]',' ', news['title'].lower()+". "+news['article'].lower())
         value = word_tokenize(value)
         T = TaggedDocument(value, [id])
         docs.append(T)
-        #print(T)
+
+    end1 = time.clock()
+    print("데이터 전처리: %s"%(end1-start))
+
+    #print(docs[:4])
 
     # initialize a model
-    model = Doc2Vec(size=20, window=1, alpha=0.025, min_alpha=0.025, min_count=0, dm=0, workers=multiprocessing.cpu_count())
+    model = Doc2Vec(size=100, window=1, alpha=0.025, min_alpha=0.025, min_count=0, dm=0, workers=multiprocessing.cpu_count())
 
     # build vocabulary
     model.build_vocab(docs)
+    end2 = time.clock()
+    print("Doc2Vec Model 만드는데 걸린 시간: %s"%(end2-end1))
 
     # get the initial document vector, and most similar articles
     # (before training, the results should be wrong)
@@ -41,7 +49,9 @@ def make_model(sentences):
     docsim1 = model.docvecs.most_similar(whole_news.keys()[0])
 
     # train this model
-    model.train(docs, total_examples=len(docs), epochs=100)
+    model.train(docs, total_examples=len(docs), epochs=20)
+    end3 = time.clock()
+    print("트레이닝 반복 20번 하는데 걸린 시간: %s"%(end3-end2))
 
     # get the trained document vector, and most similar articles
     # (after training, the results should be correct)
@@ -74,13 +84,13 @@ def make_model(sentences):
     print(docsim2[:5])
 
 
-    model.save('model/doc2vec_s.model')
+    model.save('model/doc2vec_NC_70mb_size100.model')
 
     return model
 
 if __name__ == '__main__':
 
-    path = "./data/NC_s.txt.gz"
+    path = "./data/NC_70mb.json.gz"
     with gzip.open(path, 'rb') as f:
         content = f.read()
     make_model(content.decode('utf-8'))
