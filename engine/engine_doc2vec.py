@@ -59,7 +59,7 @@ def search(content, query):
     WEIGHT_SIMILARITY = 1.0
     WEIGHT_TERM_FREQUENCY = 0.05
     WEIGHT_LATEST = 0.4
-    WEIGHT_CATEGORY = 1
+    WEIGHT_CATEGORY = 0.3
 
     news_weight_list = makeListAndAddWeightSimilarity(original_data, similar_docs, WEIGHT_SIMILARITY)
     addWeightTermFrequency(news_weight_list, query, WEIGHT_TERM_FREQUENCY) #input_query: Tokenized 된 쿼리여야 함 ex. ['Trump', 'economy', 'polices']
