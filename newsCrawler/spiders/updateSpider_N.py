@@ -1,7 +1,7 @@
 import scrapy
 import csv
 import json
-from newsCrawler.items import newsCrawlerItem
+from newsCrawler.items import NewsCrawlerItem
 
 class UpdateNewsSpider(scrapy.Spider):
     name = "updateSpider_N"
@@ -15,7 +15,7 @@ class UpdateNewsSpider(scrapy.Spider):
         
     def parse_news(self, response):
         date = "20171123"
-        item = newsCrawlerItem()
+        item = NewsCrawlerItem()
         tmpurl= str(response)
         if (tmpurl[44:52] == date):
             tmptitle = response.xpath('body/div[1]/div[3]/div[2]/div/div[1]/div[3]/p[1]/text()').extract()
