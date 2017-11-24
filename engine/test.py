@@ -4,6 +4,8 @@ import gzip
 import classifier
 import engine_doc2vec
 
+i=1
+
 def get_argument():
     input_argument = []
     for i in range(len(sys.argv) - 1):

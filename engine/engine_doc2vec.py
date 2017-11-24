@@ -15,6 +15,8 @@ from dateutil.relativedelta import relativedelta
 from operator import itemgetter, attrgetter
 import math
 
+i=1
+
 def get_argument():
     input_argument = []
     for i in range(len(sys.argv) - 1):

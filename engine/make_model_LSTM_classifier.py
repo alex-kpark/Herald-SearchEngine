@@ -15,6 +15,8 @@ import time
 import re
 import gzip
 
+i=1
+
 MAX_FEATURES = 20000
 MAX_LEN = 80  # cut texts after this number of words (among top max_features most common words)
 BATCH_SIZE = 32

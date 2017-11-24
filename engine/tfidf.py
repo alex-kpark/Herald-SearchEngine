@@ -6,6 +6,8 @@ import time
 import datetime
 from operator import itemgetter, attrgetter
 import math
+import re
+i=1
 
 def index_doc(docs,doc_names):
     index = {}
@@ -62,7 +64,7 @@ def read_doc(original_data):
     doc_names=[]    
     
     for news in original_data:
-        doc = word_tokenize(news['article'])
+        doc =word_tokenize(re.sub('[!"#%\'()*+,./:;<=>?@\[\]\\xa0$^_`{|}~’”“′‘\\\]',' ', news['title'].lower()+"."+news['article'].lower()))
         doc = [token for token in doc if token not in stopwrds]
         docs.append( doc)
         doc_names.append(news['url'])

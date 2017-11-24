@@ -17,6 +17,8 @@ from nltk.stem.porter import PorterStemmer
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import time
 
+i=1
+
 def make_model(sentences):
     whole_news = pd.read_json(content, typ='series', orient='records')
 

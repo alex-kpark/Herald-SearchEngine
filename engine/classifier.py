@@ -14,6 +14,8 @@ import pickle
 import time
 import gzip
 
+i=1
+
 def predict_category(content, query):
     '''
     path = "./data/NC_70mb.json.gz"
