@@ -19,3 +19,5 @@ class User(AbstractUser):
     bio = models.TextField(null=True, blank=True)
     phone_number = models.IntegerField(null=True, blank=True)
     gender = models.CharField(max_length=100, choices=GENDER_CHOICES, default='male')
+    #Needs to be revised
+    query = models.Textfield(null=True, blank=True)
