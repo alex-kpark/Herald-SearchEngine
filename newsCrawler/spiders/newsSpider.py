@@ -7,13 +7,7 @@ class NewsSpider(scrapy.Spider):
     name = "newsSpider"
 
     def start_requests(self):
-        #f = open('newsCrawl.json', 'r', encoding = 'utf-8')
-        #reader = csv.reader(f)
-        #for row in reader:
-            
-        #     yield scrapy.Request( 'www.koreaherald.com' + row[1][9:36], callback = self.parse_news)
-
-       with open ('NUC_70mb.json') as jsonfile:
+       with open ('news.json') as jsonfile:
            reader = json.load(jsonfile)
            for rdr in reader:
                for url in rdr["url"]:
@@ -35,4 +29,3 @@ class NewsSpider(scrapy.Spider):
         tmparticle = tmparticle.replace("\r","")
         item['article'] = tmparticle.replace("\"","")
         yield item
-
