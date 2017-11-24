@@ -3,7 +3,7 @@
 # Please refer to the documentation for information on how to create and manage
 # your spiders.
 import scrapy
-from newsCrawler.items import newsCrawlerItem
+from newsCrawler.items import NewsCrawlerItem
 
 class UpdateUrlSpider(scrapy.Spider):
     name = "updateSpider_U"
@@ -23,7 +23,7 @@ class UpdateUrlSpider(scrapy.Spider):
 
     def parse(self, response):
         for path in response.xpath('body/div/div[3]/div[2]/div/ul[1]/li'):   
-                item = newsCrawlerItem()
+                item = NewsCrawlerItem()
                 #tmpurl = path.xpath('//div[2]/p[1]/a/@href').extract()
                 #tmpurl = str(tmpurl)
                 #item['date'] = str(path.xpath('//div[2]/p[1]/a/@href').extract())[44:52]
