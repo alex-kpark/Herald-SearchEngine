@@ -2,7 +2,6 @@
 import warnings
 warnings.filterwarnings(action='ignore', category=UserWarning, module='gensim')
 
-
 import multiprocessing
 import os
 import string
@@ -17,8 +16,6 @@ from nltk.stem.porter import PorterStemmer
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import time
 
-i=1
-
 def make_model(sentences):
     whole_news = pd.read_json(content, typ='series', orient='records')
 
@@ -26,9 +23,11 @@ def make_model(sentences):
     start = time.clock()
     for news in whole_news:
         id = news['url']
-        value = re.sub('[!"#%\'()*+,./:;<=>?@\[\]\\xa0$^_`{|}~’”“′‘\\\]',' ', news['title'].lower()+". "+news['article'].lower())
-        value = word_tokenize(value)
-        T = TaggedDocument(value, [id])
+        #value = re.sub('[!"#%\'()*+,./:;<=>?@\[\]\\xa0$^_`{|}~’”“′‘\\\]',' ', news['title'].lower()+". "+news['article'].lower())
+        text = re.sub('[!"#%\'()*+,/:;<=>?\[\]\\xa0^_`{|}~’”“′‘\\\]',' ', news['title'].lower())
+        text += " " + news['article'].lower()
+        text = word_tokenize(text)
+        T = TaggedDocument(text, [id])
         docs.append(T)
 
     end1 = time.clock()
@@ -37,7 +36,7 @@ def make_model(sentences):
     #print(docs[:4])
 
     # initialize a model
-    model = Doc2Vec(size=100, window=1, alpha=0.025, min_alpha=0.025, min_count=0, dm=0, workers=multiprocessing.cpu_count())
+    model = Doc2Vec(size=100, window=5, alpha=0.025, min_alpha=0.025, min_count=0, dm=0, workers=multiprocessing.cpu_count())
 
     # build vocabulary
     model.build_vocab(docs)

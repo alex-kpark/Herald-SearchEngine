@@ -7,7 +7,6 @@ import datetime
 from operator import itemgetter, attrgetter
 import math
 import re
-i=1
 
 def index_doc(docs,doc_names):
     index = {}
@@ -61,8 +60,8 @@ def read_doc(original_data):
     stopwrds = stopwords.words('english')
 
     docs=[]
-    doc_names=[]    
-    
+    doc_names=[]
+
     for news in original_data:
         doc =word_tokenize(re.sub('[!"#%\'()*+,./:;<=>?@\[\]\\xa0$^_`{|}~’”“′‘\\\]',' ', news['title'].lower()+"."+news['article'].lower()))
         doc = [token for token in doc if token not in stopwrds]
@@ -77,7 +76,7 @@ def score(tfidf,word_dictionary,doc_dictionary,query):
     for doc_score in tfidf:
         score=0
         for word in query:
-            if(word in word_dictionary): 
+            if(word in word_dictionary):
                 wordnum = word_dictionary[word]
                 score += doc_score[wordnum]
         result[i]=score

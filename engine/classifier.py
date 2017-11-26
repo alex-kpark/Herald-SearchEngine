@@ -14,17 +14,14 @@ import pickle
 import time
 import gzip
 
-i=1
-
-def predict_category(content, query):
+def predict_category(df, query):
     '''
     path = "./data/NC_70mb.json.gz"
     with gzip.open(path, 'rb') as f:
         content = f.read()
     content = content.decode('utf-8')
-    '''
-
     df = pd.read_json(content, typ='series', orient='records')
+    '''
 
     labels = []
     for news in df:
