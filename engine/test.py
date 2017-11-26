@@ -42,11 +42,17 @@ if __name__ == '__main__':
     new_json_content = pd.Series([news for news in whole_news_newest], index = [news['url'] for news in whole_news_newest])
     new_json_content = dateTransition(new_json_content) # Date 변환, 크로울링 과정으로 빼야할 필요
 
-    model = Doc2Vec.load('model/doc2vec.model')
+    model = Doc2Vec.load('./model/doc2vec_70mb.model')
 
-    sorted_docs_weight = engine_doc2vec.search(model, json_content, new_json_content, input_query)
+    sorted_docs_weight, sorted_docs_weight_updated = engine_doc2vec.search(model, json_content, new_json_content, input_query)
 
-
+    print()
+    print('Doc2Vec Based :')
     for idx, news_weight in enumerate(sorted_docs_weight[:20]):
+        news = news_weight.getNews()
+        print("%d." % (idx+1)," %s" % news['title']," %s" % news['category'], " weight: %f" % news_weight.getWeight())
+    print()
+    print('Newly Updated Data Based :')
+    for idx, news_weight in enumerate(sorted_docs_weight_updated[:20]):
         news = news_weight.getNews()
         print("%d." % (idx+1)," %s" % news['title']," %s" % news['category'], " weight: %f" % news_weight.getWeight())

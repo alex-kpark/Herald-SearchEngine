@@ -30,22 +30,25 @@ class NewsAndWeights(object):
         if hasattr(other, 'getKey'):
             return self.getKey().__cmp__(other.getKey())
 
-def TF_IDF_News(original_data,givenlist,query,weight):
+def makeUpdatedDateNewsList(content,query,weight,topnumber):
     import tfidf
-    selected_data = pd.Series([original_data[news.news['url']] for news in givenlist], index = [news.news['url'] for news in givenlist])
-
-    docs,doc_names= tfidf.read_doc(selected_data)
+    #Tf-Idf 연산
+    docs,doc_names= tfidf.read_doc(content)
     index, inverted_index = tfidf.index_doc(docs,doc_names)
     word_dictionary = tfidf.build_dictionary(inverted_index)
     doc_dictionary = tfidf.build_dictionary(index)
     tfidf_matrix = tfidf.compute_tfidf(index,word_dictionary,doc_dictionary)
+    
     score_matrix = tfidf.score(tfidf_matrix,word_dictionary,doc_dictionary,query)
 
-    for news in givenlist:
-        doc_num = doc_dictionary[news.news['url']]
+    #새로 입력된 데이터 기반 뉴스 리스트
+    news_weight_list = []
+    for news in content:
+        doc_num = doc_dictionary[news['url']]
         weighted_score = score_matrix[doc_num][1]
-        news.addWeight(weighted_score)
-    return givenlist
+        news_weight_list.append(NewsAndWeights(news, weighted_score))
+
+    return news_weight_list[:topnumber]
 
 def search(model, content, new_content, query):
     #merged_data = original_data_newest.append(original_data)
@@ -59,20 +62,18 @@ def search(model, content, new_content, query):
     WEIGHT_TERM_FREQUENCY = 0.05
     WEIGHT_LATEST = 0.4
     WEIGHT_CATEGORY = 0.3
-    WEIGHT_TF_IDF=0.4 # TFIDF WEIGHT
 
     news_weight_list = makeListAndAddWeightSimilarity(content, similar_docs, WEIGHT_SIMILARITY)
+    
+    # 가중치 부여
     addWeightTermFrequency(news_weight_list, query, WEIGHT_TERM_FREQUENCY) #input_query: Tokenized 된 쿼리여야 함 ex. ['Trump', 'economy', 'polices']
     addWeightCategory(news_weight_list, content, query, WEIGHT_CATEGORY) #input_query: string 형태 ex. "Trump economy polices"
     addWeightLatest(news_weight_list, content, WEIGHT_LATEST)
 
-    #news_weight_list = addNewsToWeightList(new_content,news_weight_list, WEIGHT_ADDNEWEST)
-    #news_weight_list = TF_IDF_News(merged_data,news_weight_list,query,WEIGHT_TF_IDF)
-    #ADD New newslist to the list
-
+    news_weight_list_updated= makeUpdatedDateNewsList(new_content,query,WEIGHT_ADDNEWEST,5) # 새로운 뉴스 기반 데이터
     sorted_docs_weight = sorted(news_weight_list, key=attrgetter('_weight'), reverse=True)
 
-    return sorted_docs_weight
+    return sorted_docs_weight,news_weight_list_updated
 
 def makeListAndAddWeightSimilarity(original_data, similar_docs, weight):
     news_weight_list = []
