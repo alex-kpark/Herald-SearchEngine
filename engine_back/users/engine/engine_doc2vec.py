@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 from datetime import date
 import numpy as np

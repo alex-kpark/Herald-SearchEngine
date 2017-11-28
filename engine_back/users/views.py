@@ -8,3 +8,5 @@ from django.urls import reverse
 from . import models
 
 # Create your views here.
+
+def search(request, username):
