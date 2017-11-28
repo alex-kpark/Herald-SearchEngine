@@ -7,4 +7,4 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from . import models
 
-# Create your views here.ㄴ
+# Create your views here.

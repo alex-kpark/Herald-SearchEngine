@@ -9,3 +9,7 @@ from . import models
 @admin.register(models.User)
 class UserAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(models.Query)
+class UserAdmin(admin.ModelAdmin):
+    pass

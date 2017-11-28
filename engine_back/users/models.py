@@ -14,7 +14,12 @@ class User(AbstractUser):
         ('not-specified', 'Not specified')
     )
 
-    author = models.CharField(max_length=100)
-    profile_photo = models.ImageField(null=True, blank=True)
     gender = models.CharField(max_length=100, choices=GENDER_CHOICES, default='male')
+
+    def __unicode__(self):
+        return self.gender
+
+
+class Query(models.Model):
     
+    log = models.ForeignKey(User, on_delete=models.CASCADE)
