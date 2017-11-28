@@ -45,6 +45,13 @@ def makeUpdatedDateNewsList(content,query,weight,topnumber):
         weighted_score = score_matrix[doc_num][1]
         news_weight_list.append(NewsAndWeights(news, weighted_score))
 
+
+    print('\nNewly Updated Data Based :')
+    for idx, news_weight in enumerate(news_weight_list[:topnumber]):
+        news = news_weight.getNews()
+        print("%d." % (idx+1)," %s" % news['date']," %s" % news['title']," %s" % news['category'], " score: %f" % news_weight.getWeight())
+
+
     return news_weight_list[:topnumber]
 
 def search(model, content, new_content, query):
@@ -64,6 +71,7 @@ def search(model, content, new_content, query):
     #news_weight_list_updated= makeUpdatedDateNewsList(new_content,query,WEIGHT_ADDNEWEST,5) # 새로운 뉴스 기반 데이터
 
     # w
+    model.random.seed(0)
     infer_vector = model.infer_vector(query)
     similar_docs = model.docvecs.most_similar([infer_vector], topn = 200)
     news_weight_list = makeListAndAddWeightSimilarity(content, similar_docs, WEIGHT_SIMILARITY)
@@ -75,6 +83,11 @@ def search(model, content, new_content, query):
 
     end = time.clock()
     print("Time: ", end-start)
+
+    print('\nDoc2Vec Based :')
+    for idx, news_weight in enumerate(sorted_docs_weight[:20]):
+        news = news_weight.getNews()
+        print("%d." % (idx+1)," %s" % news['date'], " %s" % news['title']," %s" % news['category'], " weight: %f" % news_weight.getWeight())
 
     # result = w + N
     return sorted_docs_weight,news_weight_list_updated

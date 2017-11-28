@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     sorted_docs_weight, sorted_docs_weight_updated = engine_doc2vec.search(model, json_content, new_json_content, input_query)
 
-
+    '''
     print('\nDoc2Vec Based :')
     for idx, news_weight in enumerate(sorted_docs_weight[:20]):
         news = news_weight.getNews()
@@ -58,3 +58,4 @@ if __name__ == '__main__':
     for idx, news_weight in enumerate(sorted_docs_weight_updated):
         news = news_weight.getNews()
         print("%d." % (idx+1)," %s" % news['date']," %s" % news['title']," %s" % news['category'], " score: %f" % news_weight.getWeight())
+    '''
