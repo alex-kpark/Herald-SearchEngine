@@ -16,10 +16,7 @@ class User(AbstractUser):
 
     gender = models.CharField(max_length=100, choices=GENDER_CHOICES, default='male')
 
-    def __unicode__(self):
-        return self.gender
-
-
 class Query(models.Model):
     
-    log = models.ForeignKey(User, on_delete=models.CASCADE)
+    words = models.CharField(max_length=100)
+    author = models.ForeignKey('User', related_name="log")
