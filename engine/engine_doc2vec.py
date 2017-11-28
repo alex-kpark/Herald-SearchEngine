@@ -1,14 +1,11 @@
 import sys
-import pandas as pd
-import re
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-from nltk.tokenize import word_tokenize
 from datetime import date
 import numpy as np
-import gzip
 import time
 import gensim
-from gensim import corpora, models, similarities
+from gensim import models, similarities
+
+from multiprocessing.pool import ThreadPool
 
 from operator import attrgetter
 import math
@@ -38,7 +35,7 @@ def makeUpdatedDateNewsList(content,query,weight,topnumber):
     word_dictionary = tfidf.build_dictionary(inverted_index)
     doc_dictionary = tfidf.build_dictionary(index)
     tfidf_matrix = tfidf.compute_tfidf(index,word_dictionary,doc_dictionary)
-    
+
     score_matrix = tfidf.score(tfidf_matrix,word_dictionary,doc_dictionary,query)
 
     #새로 입력된 데이터 기반 뉴스 리스트
@@ -51,28 +48,35 @@ def makeUpdatedDateNewsList(content,query,weight,topnumber):
     return news_weight_list[:topnumber]
 
 def search(model, content, new_content, query):
-    #merged_data = original_data_newest.append(original_data)
-
-    infer_vector = model.infer_vector(query)
-    similar_docs = model.docvecs.most_similar([infer_vector], topn = 200)
-
     # TODO: 상수값 조정
     WEIGHT_SIMILARITY = 2.0
-    WEIGHT_ADDNEWEST = 1.0
-    WEIGHT_TERM_FREQUENCY = 0.05
-    WEIGHT_LATEST = 0.4
     WEIGHT_CATEGORY = 0.3
+    WEIGHT_TERM_FREQUENCY = 0.3
+    WEIGHT_LATEST = 0.3
+    WEIGHT_ADDNEWEST = 1.0
 
+    start = time.clock()
+
+    # N
+    pool = ThreadPool(processes=1)
+    async_result = pool.apply_async(makeUpdatedDateNewsList, (new_content,query,WEIGHT_ADDNEWEST,5))
+    news_weight_list_updated = async_result.get()
+    #news_weight_list_updated= makeUpdatedDateNewsList(new_content,query,WEIGHT_ADDNEWEST,5) # 새로운 뉴스 기반 데이터
+
+    # w
+    infer_vector = model.infer_vector(query)
+    similar_docs = model.docvecs.most_similar([infer_vector], topn = 200)
     news_weight_list = makeListAndAddWeightSimilarity(content, similar_docs, WEIGHT_SIMILARITY)
-    
-    # 가중치 부여
     addWeightTermFrequency(news_weight_list, query, WEIGHT_TERM_FREQUENCY) #input_query: Tokenized 된 쿼리여야 함 ex. ['Trump', 'economy', 'polices']
     addWeightCategory(news_weight_list, content, query, WEIGHT_CATEGORY) #input_query: string 형태 ex. "Trump economy polices"
     addWeightLatest(news_weight_list, content, WEIGHT_LATEST)
 
-    news_weight_list_updated= makeUpdatedDateNewsList(new_content,query,WEIGHT_ADDNEWEST,5) # 새로운 뉴스 기반 데이터
     sorted_docs_weight = sorted(news_weight_list, key=attrgetter('_weight'), reverse=True)
 
+    end = time.clock()
+    print("Time: ", end-start)
+
+    # result = w + N
     return sorted_docs_weight,news_weight_list_updated
 
 def makeListAndAddWeightSimilarity(original_data, similar_docs, weight):
@@ -95,7 +99,6 @@ def addWeightCategory(newsAndWeights, content, input_query, weight):
     import classifier
     string_query = ""
     for query in input_query:
-        text = re.sub('[!"#%\'()*+,./:;<=>?@\[\]\\xa0$^_`{|}~’”“′‘\\\]',' ', query.lower())
         string_query += query + " "
     predicted_category = classifier.predict_category(content, [string_query])
     for nw in newsAndWeights:
@@ -104,7 +107,11 @@ def addWeightCategory(newsAndWeights, content, input_query, weight):
     return
 
 def addWeightTermFrequency(newsAndWeights, input_query, weight):
-    for terms in input_query:
+    from nltk.corpus import stopwords
+    stopwrds = stopwords.words('english')
+    query_removed_stopwords = [token for token in input_query if token not in stopwrds]
+
+    for terms in query_removed_stopwords:
         for nw in newsAndWeights:
             count = nw.news['title'].count(terms) + nw.news['article'].count(terms)
             nw.addWeight(count * weight)
