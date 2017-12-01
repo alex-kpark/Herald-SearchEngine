@@ -84,7 +84,6 @@ def make_model(sentences):
     print('(After training, significantly changed)')
     print(docsim2[:5])
 
-
     model.save('model/news_s.json.gz.model')
 
     return model

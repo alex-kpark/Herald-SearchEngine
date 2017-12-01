@@ -28,6 +28,9 @@ class NewsAndWeights(object):
     def __cmp__(self, other):
         if hasattr(other, 'getKey'):
             return self.getKey().__cmp__(other.getKey())
+def load_model():
+    model = Doc2Vec.load('./model/news.json.gz.model')
+    return model
 
 def makeUpdatedDateNewsList(content,query,weight,topnumber):
     import tfidf
@@ -59,10 +62,10 @@ def makeUpdatedDateNewsList(content,query,weight,topnumber):
 
 def search(model, content, new_content, query):
     # TODO: 상수값 조정
-    WEIGHT_SIMILARITY = 2.0
+    WEIGHT_SIMILARITY = 4.0
     WEIGHT_CATEGORY = 0.3
     WEIGHT_TERM_FREQUENCY = 0.3
-    WEIGHT_LATEST = 0.3
+    WEIGHT_LATEST = 2.0
     WEIGHT_ADDNEWEST = 1.0
 
     start = time.clock()
