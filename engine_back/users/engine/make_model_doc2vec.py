@@ -85,13 +85,13 @@ def make_model(sentences):
     print(docsim2[:5])
 
 
-    model.save('model/doc2vec_NC_70mb_size100.model')
+    model.save('model/news_s.json.gz.model')
 
     return model
 
 if __name__ == '__main__':
 
-    path = "./data/NC_70mb.json.gz"
+    path = "./data/news_s.json.gz"
     with gzip.open(path, 'rb') as f:
         content = f.read()
     make_model(content.decode('utf-8'))

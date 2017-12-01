@@ -56,6 +56,23 @@ def query_matching(inverse_dictionary,query):
     set_list = [set(inverse_dictionary[word]) for word in query]
     return set.intersection(*set_list)
 
+def dictionary_vector(vector,doc_dictionary):
+    dictionary={}
+    result={}
+
+    doc_size=len(doc_dictionary)
+
+    for a in range(doc_size):
+        for key in doc_dictionary.keys():
+            if doc_dictionary[key]==a:
+                dictionary[key] = vector[a]
+    vector = sorted(dictionary.items(), key=itemgetter(1), reverse = True)
+    
+    for news in vector:
+        result[news[0]]=news[1]    
+    print(result)
+    return result 
+
 def read_doc(original_data):
     stopwrds = stopwords.words('english')
 
@@ -68,6 +85,25 @@ def read_doc(original_data):
         docs.append( doc)
         doc_names.append(news['url'])
     return docs,doc_names
+
+def cosine_similarity(x,y):
+    normalizing_factor_x = np.sqrt(np.sum(np.square(x)))
+    normalizing_factor_y = np.sqrt(np.sum(np.square(y)))
+    return np.matmul(x,np.transpose(y))/(normalizing_factor_x*normalizing_factor_y)
+
+def query_dot(query,word_dictionary,doc_dictionary):
+    vocab_size = len(word_dictionary)
+    doc_size=len(doc_dictionary)
+    vector = np.zeros(vocab_size)
+    for word in query:
+        if(word in word_dictionary):
+            vector[word_dictionary[word]] = 1  
+    vector = np.log(vector+1)
+    idf_numerator = doc_size
+    idf_denominator = np.sum(np.sign(vector),0)
+    idf = np.log(idf_numerator/idf_denominator)
+    tfidf = vector*idf
+    return tfidf 
 
 def score(tfidf,word_dictionary,doc_dictionary,query):
     result={}

@@ -38,21 +38,23 @@ def makeUpdatedDateNewsList(content,query,weight,topnumber):
     doc_dictionary = tfidf.build_dictionary(index)
     tfidf_matrix = tfidf.compute_tfidf(index,word_dictionary,doc_dictionary)
 
-    score_matrix = tfidf.score(tfidf_matrix,word_dictionary,doc_dictionary,query)
+    dot = tfidf.query_dot(query,word_dictionary,doc_dictionary)    
+    cos = tfidf.cosine_similarity(tfidf_matrix,dot)
+    score_matrix = tfidf.dictionary_vector(cos,doc_dictionary)
 
+    #score_matrix = tfidf.score(tfidf_matrix,word_dictionary,doc_dictionary,query)
+    print(score_matrix)
     #새로 입력된 데이터 기반 뉴스 리스트
+
     news_weight_list = []
-    for news in content:
-        doc_num = doc_dictionary[news['url']]
-        weighted_score = score_matrix[doc_num][1]
-        news_weight_list.append(NewsAndWeights(news, weighted_score))
-
-
+    for news in score_matrix.keys():
+        weighted_score = score_matrix[news]
+        news_weight_list.append(NewsAndWeights(content[news], weighted_score*weight))
+    
     print('\nNewly Updated Data Based :')
     for idx, news_weight in enumerate(news_weight_list[:topnumber]):
         news = news_weight.getNews()
         print("%d." % (idx+1)," %s" % news['date']," %s" % news['title']," %s" % news['category'], " score: %f" % news_weight.getWeight())
-
 
     return news_weight_list[:topnumber]
 

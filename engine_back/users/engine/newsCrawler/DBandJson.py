@@ -59,8 +59,10 @@ def InsertIntoDB(original_data,contents):
 
     conn = pymysql.connect(host='localhost', user='root', password='root', db='Crawled_Data', charset='utf8')
     #file updating
+    i = 0
     for news in contents:
         if news['url'] not in original_data.keys():
+            i+=1
             original_data[news['url']]=news
             title = news['title'].replace("'","\\'").replace('"','\\"')
             article = news['article'].replace("'","\\'").replace('"','\\"')
@@ -68,9 +70,13 @@ def InsertIntoDB(original_data,contents):
                 sql_query = "INSERT INTO `newArticle` (`id`,`title`,`date`,`url`,`category`,`article`) VALUES("+str(0)+",'"+title+"','"+str(today)+"','"+news['url']+"','"+news['category']+"','"+article+"')"    
                 cursor.execute(sql_query)
             conn.commit()
-
-    conn.close()    
-
+    
+    conn.close()
+    '''
+    with conn.cursor() as cursor:
+        sql_query = "INSERT INTO `trans_log` (`id`,`date`,`type`,`number`) VALUES('')"    
+        cursor.execute(sql_query)
+   '''
     updated_json=[]
     for news in original_data:
         updated_json.append(news)
