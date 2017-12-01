@@ -43,7 +43,6 @@ def makeUpdatedDateNewsList(content,query,weight,topnumber):
     score_matrix = tfidf.dictionary_vector(cos,doc_dictionary)
 
     #score_matrix = tfidf.score(tfidf_matrix,word_dictionary,doc_dictionary,query)
-    print(score_matrix)
     #새로 입력된 데이터 기반 뉴스 리스트
 
     news_weight_list = []
