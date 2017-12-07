@@ -70,7 +70,6 @@ def dictionary_vector(vector,doc_dictionary):
     
     for news in vector:
         result[news[0]]=news[1]    
-    print(result)
     return result 
 
 def read_doc(original_data):

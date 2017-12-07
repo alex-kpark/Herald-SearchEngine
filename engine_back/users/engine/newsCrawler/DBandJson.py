@@ -13,6 +13,7 @@ import datetime
 import pymysql
 import MySQLdb
 import codecs
+from nltk.tokenize import word_tokenize
 
 def dateTransition(content):
     for one_set in content:
@@ -101,26 +102,57 @@ def savetheDataForModel(updated_json):
     os.remove('./data/new_news.json')
     return    
 
-def DeletetheDBItem():
+def DeletetheDBItem(table):
     conn = pymysql.connect(host='localhost', user='root', password='root', db='Crawled_Data', charset='utf8')
     with conn.cursor() as cursor:
-        sql = 'DELETE FROM newArticle'
+        sql = 'DELETE FROM '+table
         cursor.execute(sql)
     conn.commit()
     conn.close()
+    return
+
+def insertDF(content):
+    dictionary = {}
+
+    DeletetheDBItem('Df')
+    print('Start building the words dictionary..')
+    for news in content:
+        for word in word_tokenize(news['article'].lower()):
+            if word not in dictionary.keys():
+                dictionary[word] = 1
+            else :
+                dictionary[word] += 1
+
+    conn = pymysql.connect(host='localhost', user='root', password='root', db='Crawled_Data', charset='utf8')
+    #file updating
+    
+    print('Finish')
+    print('Start Inserting the Data')
+
+    for word in dictionary.keys():
+        number = dictionary[word]
+        with conn.cursor() as cursor:
+            sql_query = "INSERT INTO `Df` (`id`,`word`,`number`) VALUES("+str(0)+",'"+word+"','"+str(number)+"')"    
+            cursor.execute(sql_query)
+        conn.commit()
+    conn.close()
+
     return
 
 # 파일로드
 original_data, newly_updated = getItemsFromFiles()
 
 # 기존 DB 삭제
-DeletetheDBItem()
+DeletetheDBItem('newArticle')
 
 # json 파일 연결 및 DB 삽입
 updated_json =InsertIntoDB(original_data,newly_updated)
 
-# json 파일 저장 및 임시 파일 삭제
+insertDF(updated_json)
+
+# json 파일 저장  임시 파일 삭제
 savetheDataForModel(updated_json)
+
 
 
 

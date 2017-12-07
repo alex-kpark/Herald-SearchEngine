@@ -39,7 +39,7 @@ class NewsSpider(scrapy.Spider):
         #for word in result:
         if result ==[] :
             if tmparticle != "" :
-                item = webcrawlerItem()
+                item = NewsCrawlerItem()
                 item['article'] = tmparticle
                 tmptitle = response.xpath('body/div[1]/div[3]/div[2]/div/div[1]/div[3]/p[1]/text()').extract()
                 item['title'] = ''.join( tmptitle)

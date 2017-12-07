@@ -6,11 +6,16 @@ import numpy as np
 import time
 import gensim
 from gensim import models, similarities
+from nltk.tokenize import word_tokenize
 
 from multiprocessing.pool import ThreadPool
 
 from operator import attrgetter
 import math
+
+import pymysql
+import MySQLdb
+import re
 
 class NewsAndWeights(object):
     def __init__(self,news,weight=0):
@@ -61,12 +66,30 @@ def makeUpdatedDateNewsList(content,query,weight,topnumber):
     return news_weight_list[:topnumber]
 
 def search(model, content, new_content, query):
-    # TODO: 상수값 조정
+    # TODO: 상수값 조정 for 1-2 words
     WEIGHT_SIMILARITY = 4.0
     WEIGHT_CATEGORY = 0.3
     WEIGHT_TERM_FREQUENCY = 0.3
     WEIGHT_LATEST = 2.0
     WEIGHT_ADDNEWEST = 1.0
+    WEIGHT_IDF = 1.0
+
+    # TODO: 상수값 조정 for more than 3 words
+    WEIGHT_SIMILARITY_L = 4.0
+    WEIGHT_CATEGORY_L = 0.3
+    WEIGHT_TERM_FREQUENCY_L = 0.3
+    WEIGHT_LATEST_L = 2.0
+    WEIGHT_ADDNEWEST_L = 1.0
+    WEIGHT_IDF_L = 1.0
+
+    if(len(query) > 3): # 4 단어 이상의 쿼리일 때
+        WEIGHT_SIMILARITY = WEIGHT_SIMILARITY_L
+        WEIGHT_CATEGORY = WEIGHT_CATEGORY_L
+        WEIGHT_TERM_FREQUENCY = WEIGHT_TERM_FREQUENCY_L
+        WEIGHT_LATEST = WEIGHT_LATEST_L
+        WEIGHT_ADDNEWEST = WEIGHT_ADDNEWEST_L
+        WEIGHT_IDF = WEIGHT_IDF_L
+        print('Inserted Query consis of more than 3 words')
 
     start = time.clock()
 
@@ -84,6 +107,7 @@ def search(model, content, new_content, query):
     addWeightTermFrequency(news_weight_list, query, WEIGHT_TERM_FREQUENCY) #input_query: Tokenized 된 쿼리여야 함 ex. ['Trump', 'economy', 'polices']
     addWeightCategory(news_weight_list, content, query, WEIGHT_CATEGORY) #input_query: string 형태 ex. "Trump economy polices"
     addWeightLatest(news_weight_list, content, WEIGHT_LATEST)
+    addWeightIDF_Title(news_weight_list, query, WEIGHT_IDF)
 
     sorted_docs_weight = sorted(news_weight_list, key=attrgetter('_weight'), reverse=True)
 
@@ -128,6 +152,7 @@ def addWeightCategory(newsAndWeights, content, input_query, weight):
 def addWeightTermFrequency(newsAndWeights, input_query, weight):
     from nltk.corpus import stopwords
     stopwrds = stopwords.words('english')
+    
     query_removed_stopwords = [token for token in input_query if token not in stopwrds]
 
     for terms in query_removed_stopwords:
@@ -136,6 +161,34 @@ def addWeightTermFrequency(newsAndWeights, input_query, weight):
             nw.addWeight(count * weight)
     return
 
+def addWeightIDF_Title(newsAndWeights, input_query, weight):
+    from nltk.corpus import stopwords
+    stopwrds = stopwords.words('english')
+    
+    query_removed_stopwords = [token for token in input_query if token not in stopwrds]
+    conn = pymysql.connect(host='localhost', user='root', password='root', db='Crawled_Data', charset='utf8')
+
+    word_Df={}
+    for word in query_removed_stopwords:
+        curs = conn.cursor(pymysql.cursors.DictCursor)
+        sql_query = "select number from Df Where word ='"+word+"'"
+        curs.execute(sql_query)
+        data = curs.fetchall()
+        if not (type(data)==tuple ): 
+            word_Df[word] = data[0]['number']
+        else :
+            word_Df[word] = 1 
+        # // db랑 연결 끊음
+    conn.close()
+
+    for terms in query_removed_stopwords:
+        for nw in newsAndWeights:
+            wordlist = word_tokenize(re.sub('[!"#%\'()*+,./:;<=>?\[\]\\xa0^_`{|}~’”“′‘\\\]',' ', nw.news['title'].lower()))
+            for word in wordlist:
+                if (word in word_Df.keys()):
+                    value_of_df = 1/ (word_Df[word]) *10000
+                    nw.addWeight(value_of_df * weight)
+    return
 # TODO:
 def addNewsToWeightList(original_data,givenlist,weight):
     news_weight_list = givenlist
